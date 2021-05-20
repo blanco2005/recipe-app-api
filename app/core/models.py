@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -5,8 +7,21 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
+        if not re.match("[^@]+@[^@]+\.[^@]+", email):
+            raise ValueError('Email address must be valid')
         user = self.model(email=self.normalize_email(email), **extra_fields)
         user.set_password(password)
+        user.save(using=self.db)
+
+        return user
+
+    def create_superuser(self, email, password):
+        if not re.match("[^@]+@[^@]+\.[^@]+", email):
+            raise ValueError('Email address must be valid')
+        user = self.create_user(email, password)
+        user.is_staff = True
+        user.is_superuser = True
+
         user.save(using=self.db)
 
         return user
