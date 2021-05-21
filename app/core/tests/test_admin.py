@@ -20,6 +20,18 @@ class AdminSiteTests(TestCase):
         self.assertContains(response, self.another_user.name)
         self.assertContains(response, self.another_user.email)
 
+    def test_user_page_change(self):
+        url = reverse('admin:core_user_change', args=[self.user.id])
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, 200)
+
+    def test_create_user_page(self):
+        url = reverse('admin:core_user_add')
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, 200)
+
 
 def a_logged_super_user(client):
     superuser = get_user_model().objects.create_superuser(email="email@email.com", password="password")
